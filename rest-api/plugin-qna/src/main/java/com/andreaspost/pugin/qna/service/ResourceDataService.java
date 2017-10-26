@@ -101,7 +101,7 @@ public class ResourceDataService {
 	}
 
 	/**
-	 * List answers by questionId. Returns NULL if there is no questions with the given questionId.
+	 * List answers by questionId. Returns NULL if there is no question with the given questionId.
 	 * 
 	 * @param questionId
 	 * @return
@@ -109,6 +109,26 @@ public class ResourceDataService {
 	public List<Answer> listAnswers(String questionId) {
 		if (mockAnswers.containsKey(questionId)) {
 			return mockAnswers.get(questionId);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Adds an answer to a question. Returns NULL if there is no question with the given questionId.
+	 * 
+	 * @param questionId
+	 * @param answer
+	 * @return
+	 */
+	public Answer addAnswer(String questionId, Answer answer) {
+		if (mockAnswers.containsKey(questionId)) {
+			answer.setId(String.valueOf(mockAnswers.get(questionId).size()));
+			answer.setCreatedAt(LocalDateTime.now());
+
+			mockAnswers.get(questionId).add(answer);
+
+			return answer;
 		}
 
 		return null;

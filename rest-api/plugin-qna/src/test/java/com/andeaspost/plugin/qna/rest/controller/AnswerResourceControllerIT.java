@@ -2,6 +2,7 @@ package com.andeaspost.plugin.qna.rest.controller;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -63,6 +64,43 @@ public class AnswerResourceControllerIT extends TestsBase {
 	@Test
 	public void listAnswersNegative() {
 		Response response = given().headers(headers).contentType(CONTENT_TYPE).expect().log().all().get("questions/abc/answers");
+
+		response.then().assertThat().statusCode(Status.NOT_FOUND.getStatusCode());
+	}
+
+	/**
+	 * Tests adding an answer to a given question.
+	 */
+	@Test
+	public void addAnswer() {
+		Answer answer = new Answer();
+
+		answer.setContent("42");
+		answer.setCreatedBy("Tester");
+
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).body(answer).expect().log().all()
+				.post("questions/1/answers");
+
+		response.then().assertThat().statusCode(Status.CREATED.getStatusCode());
+
+		String location = response.getHeader("location");
+
+		assertNotNull("Location header must not be null", location);
+		assertTrue("Location header must include resource path.", location.contains("questions/1/answers/"));
+	}
+
+	/**
+	 * Tests adding answers to unknown questions.
+	 */
+	@Test
+	public void addAnswerNegative() {
+		Answer answer = new Answer();
+
+		answer.setContent("bad answer");
+		answer.setCreatedBy("Tester");
+
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).body(answer).expect().log().all()
+				.post("questions/abc/answers");
 
 		response.then().assertThat().statusCode(Status.NOT_FOUND.getStatusCode());
 	}

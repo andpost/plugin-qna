@@ -1,9 +1,13 @@
 package com.andreaspost.pugin.qna.rest.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -66,6 +70,34 @@ public class AnswerResourceController {
 		answers.forEach(ans -> addResourceURL(ans));
 
 		return Response.ok(answers).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+	}
+
+	/**
+	 * Adds an answer to a given question.
+	 * 
+	 * @param answer
+	 * @return
+	 */
+	@POST
+	@Consumes(Constants.MEDIA_TYPE_JSON)
+	public Response addAnswer(Answer answer) {
+		Answer newAnswer = dataService.addAnswer(questionId, answer);
+
+		if (newAnswer == null) {
+			return Response.status(Status.NOT_FOUND).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+		}
+
+		addResourceURL(newAnswer);
+
+		URI location;
+
+		try {
+			location = new URI(newAnswer.getHref());
+		} catch (URISyntaxException e) {
+			return Response.serverError().header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+		}
+
+		return Response.created(location).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
 	}
 
 	/**
