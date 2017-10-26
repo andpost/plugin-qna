@@ -27,6 +27,26 @@ public class Question {
 	private String answersHref;
 
 	/**
+	 * Empty constructor.
+	 */
+	public Question() {
+
+	}
+
+	/**
+	 * Constructor for main stuff.
+	 * 
+	 * @param content
+	 * @param createdAt
+	 * @param createdBy
+	 */
+	public Question(String content, LocalDateTime createdAt, String createdBy) {
+		this.content = content;
+		this.createdAt = createdAt;
+		this.createdBy = createdBy;
+	}
+
+	/**
 	 * The self URL.
 	 * 
 	 * @return the href
