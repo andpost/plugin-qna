@@ -12,5 +12,5 @@ public interface Constants {
 
 	public static final String MEDIA_TYPE_JSON = "application/json";
 
-	public static final String QUESTION_RESOURCE_PATH = "rest/question/";
+	public static final String QUESTION_RESOURCE_PATH = "rest/questions/";
 }

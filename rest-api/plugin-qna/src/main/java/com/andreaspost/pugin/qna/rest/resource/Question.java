@@ -16,6 +16,8 @@ public class Question {
 
 	private String href;
 
+	private String id;
+
 	private String content;
 
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -40,10 +42,26 @@ public class Question {
 	 * @param createdAt
 	 * @param createdBy
 	 */
-	public Question(String content, LocalDateTime createdAt, String createdBy) {
+	public Question(String id, String content, LocalDateTime createdAt, String createdBy) {
+		this.id = id;
 		this.content = content;
 		this.createdAt = createdAt;
 		this.createdBy = createdBy;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	/**
