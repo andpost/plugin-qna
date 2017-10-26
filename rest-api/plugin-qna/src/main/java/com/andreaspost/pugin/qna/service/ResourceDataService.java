@@ -66,16 +66,18 @@ public class ResourceDataService {
 	/**
 	 * The list of all questions.
 	 * 
-	 * @param user
+	 * @param createdBy
 	 *            If not NULL returns only answers of this user.
+	 * @param sortOptions
+	 *            Information on how to sort the result.
 	 * @return
 	 */
-	public Collection<Question> listQuestions(String user, SortOptions sortOptions) {
-		if (user == null) {
+	public Collection<Question> listQuestions(String createdBy, SortOptions sortOptions) {
+		if (createdBy == null) {
 			return sortQuestions(mockQuestions, sortOptions);
 		}
 
-		return sortQuestions(mockQuestions.stream().filter(q -> q.getCreatedBy().equals(user)).collect(Collectors.toList()), sortOptions);
+		return sortQuestions(mockQuestions.stream().filter(q -> q.getCreatedBy().equals(createdBy)).collect(Collectors.toList()), sortOptions);
 	}
 
 	/**
@@ -147,7 +149,9 @@ public class ResourceDataService {
 	}
 
 	/**
-	 * Some sorting...not finished yet.
+	 * Some sorting...not the best impl so far, but a start to have some sorting feature.
+	 * 
+	 * If we have the mongo backend, we let the db do the sorting.
 	 * 
 	 * @param questions
 	 * @param sortOptions

@@ -71,17 +71,7 @@ public class QuestionResourceControllerIT extends TestsBase {
 
 		response.then().assertThat().statusCode(Status.OK.getStatusCode());
 
-		List<Question> qList = null;
-
-		try {
-			qList = new ObjectMapper().readValue(response.body().asString(), new TypeReference<List<Question>>() {
-			});
-		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "Unable to parse resource response.", e);
-			fail(e.getMessage());
-		}
-
-		assertNotNull("Questions list resource must not be null.", qList);
+		List<Question> qList = parseQuestionListResponse(response);
 
 		qList.forEach(q -> checkSingleResource(q));
 	}
@@ -97,19 +87,59 @@ public class QuestionResourceControllerIT extends TestsBase {
 
 		response.then().assertThat().statusCode(Status.OK.getStatusCode());
 
-		List<Question> qList = null;
-
-		try {
-			qList = new ObjectMapper().readValue(response.body().asString(), new TypeReference<List<Question>>() {
-			});
-		} catch (IOException e) {
-			LOG.log(Level.SEVERE, "Unable to parse resource response.", e);
-			fail(e.getMessage());
-		}
-
-		assertNotNull("Questions list resource must not be null.", qList);
+		List<Question> qList = parseQuestionListResponse(response);
 
 		qList.forEach(q -> assertTrue("Filtered result must only contain entries for: " + userName, q.getCreatedBy().equals(userName)));
+	}
+
+	/**
+	 * Tests sorting of questions in ascending order (by createdBy).
+	 */
+	@Test
+	public void listQuestionsSortedByCreationDateAsc() {
+		String sortCriteria = "+createdAt";
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).queryParam("sort", sortCriteria).expect().log().all()
+				.get("questions");
+
+		response.then().assertThat().statusCode(Status.OK.getStatusCode());
+
+		List<Question> qList = parseQuestionListResponse(response);
+
+		Question prev = null;
+
+		for (Question next : qList) {
+			if (prev != null) {
+				assertTrue("Sorting must be ascending.",
+						prev.getCreatedAt().isBefore(next.getCreatedAt()) //
+								|| prev.getCreatedAt().equals(next.getCreatedAt()));
+			}
+			prev = next;
+		}
+	}
+
+	/**
+	 * Tests sorting of questions in descending order (by createdBy).
+	 */
+	@Test
+	public void listQuestionsSortedByCreationDateDesc() {
+		String sortCriteria = "-createdAt";
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).queryParam("sort", sortCriteria).expect().log().all()
+				.get("questions");
+
+		response.then().assertThat().statusCode(Status.OK.getStatusCode());
+
+		List<Question> qList = parseQuestionListResponse(response);
+
+		Question prev = null;
+
+		for (Question next : qList) {
+			if (prev != null) {
+				assertTrue("Sorting must be descending.",
+						prev.getCreatedAt().isAfter(next.getCreatedAt()) //
+								|| prev.getCreatedAt().equals(next.getCreatedAt()));
+			}
+			prev = next;
+		}
 	}
 
 	@Test
@@ -136,6 +166,28 @@ public class QuestionResourceControllerIT extends TestsBase {
 		assertNotNull("Creator info must not be null.", q.getCreatedBy());
 		assertNotNull("Self URL must not be null.", q.getHref());
 		assertNotNull("Answers URL must not be null.", q.getAnswersHref());
+	}
+
+	/**
+	 * Convenience method for parsing a response with a list of questions.
+	 * 
+	 * @param response
+	 * @return
+	 */
+	private List<Question> parseQuestionListResponse(Response response) {
+		List<Question> qList = null;
+
+		try {
+			qList = new ObjectMapper().readValue(response.body().asString(), new TypeReference<List<Question>>() {
+			});
+		} catch (IOException e) {
+			LOG.log(Level.SEVERE, "Unable to parse resource response.", e);
+			fail(e.getMessage());
+		}
+
+		assertNotNull("Questions list resource must not be null.", qList);
+
+		return qList;
 	}
 
 }

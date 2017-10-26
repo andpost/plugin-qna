@@ -23,6 +23,7 @@ import com.andreaspost.pugin.qna.rest.Constants;
 import com.andreaspost.pugin.qna.rest.resource.Question;
 import com.andreaspost.pugin.qna.service.ResourceDataService;
 import com.andreaspost.pugin.qna.service.SortOptions;
+import com.andreaspost.pugin.qna.service.SortOptions.SortOrder;
 
 /**
  * Resource controller for {@link Question} resources.
@@ -125,10 +126,9 @@ public class QuestionResourceController {
 			return so;
 		}
 
-		// TODO Fix Impl - sorting feature deactivated so far
-//		for (String elem : sortParam.split(",")) {
-//			so.addSortOption(elem.substring(1, elem.length()), SortOrder.of(elem.substring(0, 2)));
-//		}
+		for (String elem : sortParam.split(",")) {
+			so.addSortOption(elem.substring(1, elem.length()), SortOrder.of(elem.substring(0, 1)));
+		}
 
 		return so;
 	}
