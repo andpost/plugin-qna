@@ -86,11 +86,36 @@ public class QuestionResourceControllerIT extends TestsBase {
 		qList.forEach(q -> checkSingleResource(q));
 	}
 
+	/**
+	 * Tests filtering questions by user.
+	 */
+	@Test
+	public void listQuestionsByUser() {
+		String userName = "tester";
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).queryParam("user", userName).expect().log().all().get("questions");
+
+		response.then().assertThat().statusCode(Status.OK.getStatusCode());
+
+		List<Question> qList = null;
+
+		try {
+			qList = new ObjectMapper().readValue(response.body().asString(), new TypeReference<List<Question>>() {
+			});
+		} catch (IOException e) {
+			LOG.log(Level.SEVERE, "Unable to parse resource response.", e);
+			fail(e.getMessage());
+		}
+
+		assertNotNull("Questions list resource must not be null.", qList);
+
+		qList.forEach(q -> assertTrue("Filtered result must only contain entries for: " + userName, q.getCreatedBy().equals(userName)));
+	}
+
 	@Test
 	public void createQuestion() {
 		Question q = new Question();
 		q.setContent("Unit Test");
-		q.setCreatedBy("Tester");
+		q.setCreatedBy("tester");
 
 		Response response = given().headers(headers).contentType(CONTENT_TYPE).body(q).expect().log().all()
 				.post("questions");

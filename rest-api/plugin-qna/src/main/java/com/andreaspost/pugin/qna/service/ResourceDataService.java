@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
 
@@ -30,10 +31,10 @@ public class ResourceDataService {
 		mockQuestions.add(new Question(String.valueOf(0), "honestatis dico autem aliquip natum", LocalDateTime.now(), "admin"));
 		mockQuestions
 				.add(
-						new Question(String.valueOf(1), "placerat gravida sociis invenire fermentum pri repudiandae", LocalDateTime.now(), "admin"));
+						new Question(String.valueOf(1), "placerat gravida sociis invenire fermentum pri repudiandae", LocalDateTime.now(), "tester"));
 		mockQuestions.add(new Question(String.valueOf(2), "sonet ex duis aptent docendi vivamus", LocalDateTime.now(), "admin"));
-		mockQuestions.add(new Question(String.valueOf(3), "vero justo ludus dico per", LocalDateTime.now(), "admin"));
-		mockQuestions.add(new Question(String.valueOf(4), "euripidis rutrum eripuit mi bibendum", LocalDateTime.now(), "admin"));
+		mockQuestions.add(new Question(String.valueOf(3), "vero justo ludus dico per", LocalDateTime.now(), "anothertester"));
+		mockQuestions.add(new Question(String.valueOf(4), "euripidis rutrum eripuit mi bibendum", LocalDateTime.now(), "anothertester"));
 
 		mockAnswers = new HashMap<>();
 
@@ -60,10 +61,16 @@ public class ResourceDataService {
 	/**
 	 * The list of all questions.
 	 * 
+	 * @param user
+	 *            If not NULL returns only answers of this user.
 	 * @return
 	 */
-	public Collection<Question> getQuestions() {
-		return mockQuestions;
+	public Collection<Question> getQuestions(String user) {
+		if (user == null) {
+			return mockQuestions;
+		}
+
+		return mockQuestions.stream().filter(q -> q.getCreatedBy().equals(user)).collect(Collectors.toList());
 	}
 
 	/**

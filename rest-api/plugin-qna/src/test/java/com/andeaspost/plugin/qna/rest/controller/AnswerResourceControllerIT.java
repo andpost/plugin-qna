@@ -97,7 +97,7 @@ public class AnswerResourceControllerIT extends TestsBase {
 		Answer answer = new Answer();
 
 		answer.setContent("bad answer");
-		answer.setCreatedBy("Tester");
+		answer.setCreatedBy("tester");
 
 		Response response = given().headers(headers).contentType(CONTENT_TYPE).body(answer).expect().log().all()
 				.post("questions/abc/answers");
