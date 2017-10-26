@@ -109,8 +109,7 @@ public class QuestionResourceControllerIT extends TestsBase {
 		assertNotNull("Creation date must not be null.", q.getCreatedAt());
 		assertNotNull("Creator info must not be null.", q.getCreatedBy());
 		assertNotNull("Self URL must not be null.", q.getHref());
-
-		// TODO if answer URL is given, try following the link
+		assertNotNull("Answers URL must not be null.", q.getAnswersHref());
 	}
 
 }

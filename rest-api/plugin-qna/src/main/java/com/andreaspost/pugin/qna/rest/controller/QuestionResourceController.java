@@ -28,22 +28,6 @@ import com.andreaspost.pugin.qna.service.ResourceDataService;
 @Path(Constants.QUESTION_RESOURCE_PATH)
 public class QuestionResourceController {
 
-//	private static Map<String, Question> dummyQuestions;
-//
-//	private static Question createdQuestion;
-//
-//	static {
-//		dummyQuestions = new HashMap<>();
-//
-//		dummyQuestions.put(String.valueOf(0), new Question(String.valueOf(0), "honestatis dico autem aliquip natum", LocalDateTime.now(), "admin"));
-//		dummyQuestions
-//				.put(String.valueOf(1),
-//						new Question(String.valueOf(1), "placerat gravida sociis invenire fermentum pri repudiandae", LocalDateTime.now(), "admin"));
-//		dummyQuestions.put(String.valueOf(2), new Question(String.valueOf(2), "sonet ex duis aptent docendi vivamus", LocalDateTime.now(), "admin"));
-//		dummyQuestions.put(String.valueOf(3), new Question(String.valueOf(3), "vero justo ludus dico per", LocalDateTime.now(), "admin"));
-//		dummyQuestions.put(String.valueOf(4), new Question(String.valueOf(4), "euripidis rutrum eripuit mi bibendum", LocalDateTime.now(), "admin"));
-//	}
-
 	@Inject
 	ResourceDataService dataService;
 
@@ -55,15 +39,15 @@ public class QuestionResourceController {
 	@Produces(Constants.MEDIA_TYPE_JSON)
 	public Response getQuestion(@PathParam("id") String id) {
 
-		Question dummy = dataService.getQuestion(id); // replace with some backend stuff
+		Question question = dataService.getQuestion(id); // replace with some backend stuff
 
-		if (dummy == null) {
+		if (question == null) {
 			return Response.status(Status.NOT_FOUND).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
 		}
 
-		addResourceURL(dummy);
+		addResourceURL(question);
 
-		return Response.ok(dummy).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+		return Response.ok(question).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
 	}
 
 	@GET
@@ -76,6 +60,12 @@ public class QuestionResourceController {
 		return Response.ok(questions).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
 	}
 
+	/**
+	 * Create a new question.
+	 * 
+	 * @param question
+	 * @return
+	 */
 	@POST
 	@Consumes(Constants.MEDIA_TYPE_JSON)
 	public Response createQuestion(Question question) {
@@ -101,6 +91,9 @@ public class QuestionResourceController {
 	 */
 	private void addResourceURL(Question q) {
 		q.setHref(uriInfo.getBaseUri().toString() + Constants.QUESTION_RESOURCE_PATH + q.getId());
+
+		String answerUrlString = Constants.ANSWERS_RESOURCE_PATH.replace("{qid}", q.getId());
+		q.setAnswersHref(uriInfo.getBaseUri().toString() + answerUrlString);
 	}
 
 }

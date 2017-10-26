@@ -16,6 +16,8 @@ public class Answer {
 
 	private String href;
 
+	private String id;
+
 	private String content;
 
 	@JsonSerialize(using = LocalDateTimeSerializer.class)
@@ -23,6 +25,28 @@ public class Answer {
 	private LocalDateTime createdAt;
 
 	private String createdBy;
+
+	/**
+	 * Empty constructor.
+	 */
+	public Answer() {
+
+	}
+
+	/**
+	 * Constructor for main fields.
+	 * 
+	 * @param id
+	 * @param content
+	 * @param createdAt
+	 * @param createdBy
+	 */
+	public Answer(String id, String content, LocalDateTime createdAt, String createdBy) {
+		this.id = id;
+		this.content = content;
+		this.createdAt = createdAt;
+		this.createdBy = createdBy;
+	}
 
 	/**
 	 * The self URL.
@@ -39,6 +63,21 @@ public class Answer {
 	 */
 	public void setHref(String href) {
 		this.href = href;
+	}
+
+	/**
+	 * @return the id
+	 */
+	public String getId() {
+		return id;
+	}
+
+	/**
+	 * @param id
+	 *            the id to set
+	 */
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	/**
