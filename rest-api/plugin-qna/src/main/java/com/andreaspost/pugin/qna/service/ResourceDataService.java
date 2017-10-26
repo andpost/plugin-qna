@@ -9,7 +9,9 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
 
+import com.andreaspost.pugin.qna.interceptors.MethodLoggingInterceptor;
 import com.andreaspost.pugin.qna.rest.resource.Answer;
 import com.andreaspost.pugin.qna.rest.resource.Question;
 
@@ -19,6 +21,7 @@ import com.andreaspost.pugin.qna.rest.resource.Question;
  * @author Andreas Post
  */
 @Stateless
+@Interceptors({ MethodLoggingInterceptor.class })
 public class ResourceDataService {
 
 	private static List<Question> mockQuestions;

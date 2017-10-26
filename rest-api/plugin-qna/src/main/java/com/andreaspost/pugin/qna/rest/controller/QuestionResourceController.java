@@ -7,6 +7,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+import javax.interceptor.Interceptors;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -19,7 +20,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.UriInfo;
 
+import com.andreaspost.pugin.qna.interceptors.MethodLoggingInterceptor;
 import com.andreaspost.pugin.qna.rest.Constants;
+import com.andreaspost.pugin.qna.rest.interceptors.RequestLoggingInterceptor;
 import com.andreaspost.pugin.qna.rest.resource.Question;
 import com.andreaspost.pugin.qna.service.ResourceDataService;
 import com.andreaspost.pugin.qna.service.SortOptions;
@@ -31,6 +34,7 @@ import com.andreaspost.pugin.qna.service.SortOptions.SortOrder;
  * @author Andreas Post
  */
 @Path(Constants.QUESTION_RESOURCE_PATH)
+@Interceptors({ RequestLoggingInterceptor.class, MethodLoggingInterceptor.class })
 public class QuestionResourceController {
 
 	private static final Logger LOG = Logger.getLogger(QuestionResourceController.class.getName());
