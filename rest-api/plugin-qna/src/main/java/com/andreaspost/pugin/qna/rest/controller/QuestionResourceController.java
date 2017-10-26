@@ -2,11 +2,9 @@ package com.andreaspost.pugin.qna.rest.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -20,6 +18,7 @@ import javax.ws.rs.core.UriInfo;
 
 import com.andreaspost.pugin.qna.rest.Constants;
 import com.andreaspost.pugin.qna.rest.resource.Question;
+import com.andreaspost.pugin.qna.service.ResourceDataService;
 
 /**
  * Resource controller for {@link Question} resources.
@@ -29,21 +28,24 @@ import com.andreaspost.pugin.qna.rest.resource.Question;
 @Path(Constants.QUESTION_RESOURCE_PATH)
 public class QuestionResourceController {
 
-	private static Map<String, Question> dummyQuestions;
+//	private static Map<String, Question> dummyQuestions;
+//
+//	private static Question createdQuestion;
+//
+//	static {
+//		dummyQuestions = new HashMap<>();
+//
+//		dummyQuestions.put(String.valueOf(0), new Question(String.valueOf(0), "honestatis dico autem aliquip natum", LocalDateTime.now(), "admin"));
+//		dummyQuestions
+//				.put(String.valueOf(1),
+//						new Question(String.valueOf(1), "placerat gravida sociis invenire fermentum pri repudiandae", LocalDateTime.now(), "admin"));
+//		dummyQuestions.put(String.valueOf(2), new Question(String.valueOf(2), "sonet ex duis aptent docendi vivamus", LocalDateTime.now(), "admin"));
+//		dummyQuestions.put(String.valueOf(3), new Question(String.valueOf(3), "vero justo ludus dico per", LocalDateTime.now(), "admin"));
+//		dummyQuestions.put(String.valueOf(4), new Question(String.valueOf(4), "euripidis rutrum eripuit mi bibendum", LocalDateTime.now(), "admin"));
+//	}
 
-	private static Question createdQuestion;
-
-	static {
-		dummyQuestions = new HashMap<>();
-
-		dummyQuestions.put(String.valueOf(0), new Question(String.valueOf(0), "honestatis dico autem aliquip natum", LocalDateTime.now(), "admin"));
-		dummyQuestions
-				.put(String.valueOf(1),
-						new Question(String.valueOf(1), "placerat gravida sociis invenire fermentum pri repudiandae", LocalDateTime.now(), "admin"));
-		dummyQuestions.put(String.valueOf(2), new Question(String.valueOf(2), "sonet ex duis aptent docendi vivamus", LocalDateTime.now(), "admin"));
-		dummyQuestions.put(String.valueOf(3), new Question(String.valueOf(3), "vero justo ludus dico per", LocalDateTime.now(), "admin"));
-		dummyQuestions.put(String.valueOf(4), new Question(String.valueOf(4), "euripidis rutrum eripuit mi bibendum", LocalDateTime.now(), "admin"));
-	}
+	@Inject
+	ResourceDataService dataService;
 
 	@Context
 	protected UriInfo uriInfo;
@@ -53,7 +55,7 @@ public class QuestionResourceController {
 	@Produces(Constants.MEDIA_TYPE_JSON)
 	public Response getQuestion(@PathParam("id") String id) {
 
-		Question dummy = dummyQuestions.get(id); // replace with some backend stuff
+		Question dummy = dataService.getQuestion(id); // replace with some backend stuff
 
 		if (dummy == null) {
 			return Response.status(Status.NOT_FOUND).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
@@ -67,7 +69,7 @@ public class QuestionResourceController {
 	@GET
 	@Produces(Constants.MEDIA_TYPE_JSON)
 	public Response listQuestions() {
-		Collection<Question> questions = dummyQuestions.values();
+		Collection<Question> questions = dataService.getQuestions();
 
 		questions.forEach(q -> addResourceURL(q));
 
@@ -77,17 +79,14 @@ public class QuestionResourceController {
 	@POST
 	@Consumes(Constants.MEDIA_TYPE_JSON)
 	public Response createQuestion(Question question) {
-		createdQuestion = question;
-		createdQuestion.setId(String.valueOf(6));
-		createdQuestion.setCreatedAt(LocalDateTime.now());
-		dummyQuestions.put(createdQuestion.getId(), createdQuestion);
+		Question newQuestion = dataService.addNewQuestion(question);
 
-		addResourceURL(createdQuestion);
+		addResourceURL(newQuestion);
 
 		URI location;
 
 		try {
-			location = new URI(createdQuestion.getHref());
+			location = new URI(newQuestion.getHref());
 		} catch (URISyntaxException e) {
 			return Response.serverError().header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
 		}
