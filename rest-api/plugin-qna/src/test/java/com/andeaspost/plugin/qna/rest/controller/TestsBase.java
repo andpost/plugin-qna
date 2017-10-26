@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
 
 import org.junit.Before;
 
@@ -26,7 +30,8 @@ public abstract class TestsBase {
 
 	private static final Logger LOG = Logger.getLogger(TestsBase.class.getName());
 
-	protected static final String CONTENT_TYPE = "application/json; charset=UTF-8";
+	protected static final String CONTENT_TYPE = MediaType.APPLICATION_JSON + "; " //
+			+ MediaType.CHARSET_PARAMETER + "=" + StandardCharsets.UTF_8;
 
 	protected static final String BASE_PATH = "plugin-qna/rest";
 
@@ -36,7 +41,7 @@ public abstract class TestsBase {
 	public void init() throws MalformedURLException {
 		List<Header> headerList = new ArrayList<Header>();
 		headerList = new ArrayList<Header>();
-		headerList.add(new Header("Accept-Language", "de"));
+		headerList.add(new Header(HttpHeaders.ACCEPT_LANGUAGE, "en"));
 
 		headers = new Headers(headerList);
 
