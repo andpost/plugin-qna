@@ -92,7 +92,8 @@ public class QuestionResourceControllerIT extends TestsBase {
 	@Test
 	public void listQuestionsByUser() {
 		String userName = "tester";
-		Response response = given().headers(headers).contentType(CONTENT_TYPE).queryParam("user", userName).expect().log().all().get("questions");
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).queryParam("createdBy", userName).expect().log().all()
+				.get("questions");
 
 		response.then().assertThat().statusCode(Status.OK.getStatusCode());
 

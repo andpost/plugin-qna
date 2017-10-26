@@ -3,6 +3,8 @@ package com.andreaspost.pugin.qna.rest.controller;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -20,6 +22,7 @@ import javax.ws.rs.core.UriInfo;
 import com.andreaspost.pugin.qna.rest.Constants;
 import com.andreaspost.pugin.qna.rest.resource.Question;
 import com.andreaspost.pugin.qna.service.ResourceDataService;
+import com.andreaspost.pugin.qna.service.SortOptions;
 
 /**
  * Resource controller for {@link Question} resources.
@@ -28,6 +31,8 @@ import com.andreaspost.pugin.qna.service.ResourceDataService;
  */
 @Path(Constants.QUESTION_RESOURCE_PATH)
 public class QuestionResourceController {
+
+	private static final Logger LOG = Logger.getLogger(QuestionResourceController.class.getName());
 
 	@Inject
 	ResourceDataService dataService;
@@ -53,8 +58,18 @@ public class QuestionResourceController {
 
 	@GET
 	@Produces(Constants.MEDIA_TYPE_JSON)
-	public Response listQuestions(@QueryParam("user") String user) {
-		Collection<Question> questions = dataService.getQuestions(user);
+	public Response listQuestions(@QueryParam("createdBy") String user, @QueryParam("sort") String sort) {
+
+		SortOptions sortOptions;
+
+		try {
+			sortOptions = createSortOptions(sort);
+		} catch (IllegalArgumentException e) {
+			LOG.log(Level.WARNING, "Error creating sort options.", e);
+			return Response.status(Status.BAD_REQUEST).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+		}
+
+		Collection<Question> questions = dataService.listQuestions(user, sortOptions);
 
 		questions.forEach(q -> addResourceURL(q));
 
@@ -97,4 +112,24 @@ public class QuestionResourceController {
 		q.setAnswersHref(uriInfo.getBaseUri().toString() + answerUrlString);
 	}
 
+	/**
+	 * Create {@link SortOptions} if we have some.
+	 * 
+	 * @param sortParam
+	 * @return
+	 */
+	private SortOptions createSortOptions(String sortParam) {
+		SortOptions so = new SortOptions();
+
+		if (sortParam == null) {
+			return so;
+		}
+
+		// TODO Fix Impl - sorting feature deactivated so far
+//		for (String elem : sortParam.split(",")) {
+//			so.addSortOption(elem.substring(1, elem.length()), SortOrder.of(elem.substring(0, 2)));
+//		}
+
+		return so;
+	}
 }
