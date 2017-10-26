@@ -2,6 +2,7 @@ package com.andeaspost.plugin.qna.rest.controller;
 
 import static com.jayway.restassured.RestAssured.given;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -46,11 +47,7 @@ public class QuestionResourceControllerIT extends TestsBase {
 			fail(e.getMessage());
 		}
 
-		assertNotNull("Question resource must not be null.", q);
-		assertNotNull("Content must not be null.", q.getContent());
-		assertNotNull("Creation date must not be null.", q.getCreatedAt());
-		assertNotNull("Creator info must not be null.", q.getCreatedBy());
-//		assertNotNull("Self URL must not be null.", q.getHref());
+		checkSingleResource(q);
 
 		// TODO if answer URL is given, try following the link
 	}
@@ -87,6 +84,23 @@ public class QuestionResourceControllerIT extends TestsBase {
 		assertNotNull("Questions list resource must not be null.", qList);
 
 		qList.forEach(q -> checkSingleResource(q));
+	}
+
+	@Test
+	public void createQuestion() {
+		Question q = new Question();
+		q.setContent("Unit Test");
+		q.setCreatedBy("Tester");
+
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).body(q).expect().log().all()
+				.post("questions");
+
+		response.then().assertThat().statusCode(Status.CREATED.getStatusCode());
+
+		String location = response.getHeader("location");
+
+		assertNotNull("Location header must not be null", location);
+		assertTrue("Location header must include resource path.", location.contains("questions/"));
 	}
 
 	private void checkSingleResource(Question q) {

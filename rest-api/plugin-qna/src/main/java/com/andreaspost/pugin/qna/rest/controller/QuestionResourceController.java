@@ -1,11 +1,15 @@
 package com.andreaspost.pugin.qna.rest.controller;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -26,6 +30,8 @@ import com.andreaspost.pugin.qna.rest.resource.Question;
 public class QuestionResourceController {
 
 	private static Map<String, Question> dummyQuestions;
+
+	private static Question createdQuestion;
 
 	static {
 		dummyQuestions = new HashMap<>();
@@ -66,6 +72,27 @@ public class QuestionResourceController {
 		questions.forEach(q -> addResourceURL(q));
 
 		return Response.ok(questions).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+	}
+
+	@POST
+	@Consumes(Constants.MEDIA_TYPE_JSON)
+	public Response createQuestion(Question question) {
+		createdQuestion = question;
+		createdQuestion.setId(String.valueOf(6));
+		createdQuestion.setCreatedAt(LocalDateTime.now());
+		dummyQuestions.put(createdQuestion.getId(), createdQuestion);
+
+		addResourceURL(createdQuestion);
+
+		URI location;
+
+		try {
+			location = new URI(createdQuestion.getHref());
+		} catch (URISyntaxException e) {
+			return Response.serverError().header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
+		}
+
+		return Response.created(location).header(Constants.CONTENT_ENC_KEY, Constants.CHARSET_UTF8).build();
 	}
 
 	/**
