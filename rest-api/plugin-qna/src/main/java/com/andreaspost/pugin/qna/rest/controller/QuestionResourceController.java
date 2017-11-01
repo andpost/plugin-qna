@@ -16,12 +16,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import com.andreaspost.pugin.qna.interceptors.MethodLoggingInterceptor;
 import com.andreaspost.pugin.qna.rest.interceptors.RequestLoggingInterceptor;
@@ -37,7 +36,7 @@ import com.andreaspost.pugin.qna.service.SortOptions.SortOrder;
  */
 @Path(QuestionResourceController.RESOURCE_PATH)
 @Interceptors({ RequestLoggingInterceptor.class, MethodLoggingInterceptor.class })
-public class QuestionResourceController {
+public class QuestionResourceController extends AbstractResourceController<Question> {
 
 	public static final String RESOURCE_PATH = "rest/questions/";
 
@@ -45,9 +44,6 @@ public class QuestionResourceController {
 
 	@Inject
 	ResourceDataService dataService;
-
-	@Context
-	protected UriInfo uriInfo;
 
 	@GET
 	@Path("{id}")
@@ -67,7 +63,8 @@ public class QuestionResourceController {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response listQuestions(@QueryParam("createdBy") String user, @QueryParam("sort") String sort) {
+	public Response listQuestions(@QueryParam("createdBy") String createdBy, @QueryParam("sort") String sort, @QueryParam("offset") Integer offset,
+			@QueryParam("limit") Integer limit) {
 
 		SortOptions sortOptions;
 
@@ -78,11 +75,20 @@ public class QuestionResourceController {
 			return Response.status(Status.BAD_REQUEST).header(HttpHeaders.CONTENT_ENCODING, StandardCharsets.UTF_8).build();
 		}
 
-		Collection<Question> questions = dataService.listQuestions(user, sortOptions);
+		int currentLimit = getLimit(limit);
+		int currentOffset = getOffset(offset);
+
+		int count = dataService.countQuestions(createdBy);
+
+		Collection<Question> questions = dataService.listQuestions(createdBy, sortOptions, currentLimit, currentOffset);
 
 		questions.forEach(q -> addResourceURL(q));
 
-		return Response.ok(questions).header(HttpHeaders.CONTENT_ENCODING, StandardCharsets.UTF_8).build();
+		ResponseBuilder builder = Response.ok(questions).header(HttpHeaders.CONTENT_ENCODING, StandardCharsets.UTF_8);
+
+		addPaginationHeaders(builder, count, currentLimit, currentOffset);
+
+		return builder.build();
 	}
 
 	/**
@@ -109,16 +115,17 @@ public class QuestionResourceController {
 		return Response.created(location).header(HttpHeaders.CONTENT_ENCODING, StandardCharsets.UTF_8).build();
 	}
 
-	/**
-	 * Add the self url for the given resource.
-	 * 
-	 * @param q
-	 */
-	private void addResourceURL(Question q) {
-		q.setHref(uriInfo.getBaseUri().toString() + RESOURCE_PATH + q.getId());
+	@Override
+	protected String getResourcePath() {
+		return RESOURCE_PATH;
+	}
 
-		String answerUrlString = AnswerResourceController.RESOURCE_PATH.replace("{qid}", q.getId());
-		q.setAnswersHref(uriInfo.getBaseUri().toString() + answerUrlString);
+	@Override
+	protected void addResourceURL(Question resource) {
+		super.addResourceURL(resource);
+
+		String answerUrlString = AnswerResourceController.RESOURCE_PATH.replace("{qid}", resource.getId());
+		resource.setAnswersHref(getUriInfo().getBaseUri().toString() + answerUrlString);
 	}
 
 	/**
@@ -140,4 +147,5 @@ public class QuestionResourceController {
 
 		return so;
 	}
+
 }

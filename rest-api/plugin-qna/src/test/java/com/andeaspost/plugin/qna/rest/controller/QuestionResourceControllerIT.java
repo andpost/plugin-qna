@@ -77,6 +77,25 @@ public class QuestionResourceControllerIT extends TestsBase {
 	}
 
 	/**
+	 * Tests limitation and pagination of questions.
+	 */
+	@Test
+	public void listQuestionsWithPagination() {
+		int limit = 5;
+		Response response = given().headers(headers).contentType(CONTENT_TYPE).queryParam("limit", limit).expect().log().all().get("questions");
+
+		response.then().assertThat().statusCode(Status.OK.getStatusCode());
+
+		List<Question> qList = parseQuestionListResponse(response);
+
+		assertTrue("Expected a result with less than or equal as " + limit + " entries, but received: " + qList.size(), qList.size() <= limit);
+
+		qList.forEach(q -> checkSingleResource(q));
+
+		// TODO some more tests checking link headers and follow the links
+	}
+
+	/**
 	 * Tests filtering questions by user.
 	 */
 	@Test

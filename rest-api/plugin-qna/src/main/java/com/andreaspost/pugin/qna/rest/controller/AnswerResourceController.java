@@ -12,26 +12,21 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import com.andreaspost.pugin.qna.rest.resource.Answer;
 import com.andreaspost.pugin.qna.service.ResourceDataService;
 
 @Path(AnswerResourceController.RESOURCE_PATH)
-public class AnswerResourceController {
+public class AnswerResourceController extends AbstractResourceController<Answer> {
 
 	public static final String RESOURCE_PATH = QuestionResourceController.RESOURCE_PATH + "{qid}/answers/";
 
 	@Inject
 	ResourceDataService dataService;
-
-	@Context
-	protected UriInfo uriInfo;
 
 	@PathParam("qid")
 	private String questionId;
@@ -104,13 +99,9 @@ public class AnswerResourceController {
 		return Response.created(location).header(HttpHeaders.CONTENT_ENCODING, StandardCharsets.UTF_8).build();
 	}
 
-	/**
-	 * Add the self url for the given resource.
-	 * 
-	 * @param q
-	 */
-	private void addResourceURL(Answer ans) {
-		String baseUrlString = RESOURCE_PATH.replace("{qid}", questionId);
-		ans.setHref(uriInfo.getBaseUri().toString() + baseUrlString + ans.getId());
+	@Override
+	protected String getResourcePath() {
+		return RESOURCE_PATH.replace("{qid}", questionId);
 	}
+
 }
